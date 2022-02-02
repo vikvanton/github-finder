@@ -1,32 +1,23 @@
-/* eslint-disable react-hooks/exhaustive-deps */
-import { useEffect, useContext } from "react";
+import { useLayoutEffect, useContext } from "react";
 import { useParams, Link } from "react-router-dom";
 import GithubContext from "../components/context/github/GithubContext";
 import Spinner from "../components/layout/Spinner";
 import ReposList from "../components/repos/ReposList";
 import { FaCodepen, FaStore, FaUserFriends, FaUsers } from "react-icons/fa";
+import useGithubActions from "../components/context/github/GithubActions";
 
 function User() {
-    const {
-        user,
-        repos,
-        loading,
-        getUser,
-        getUserRepos,
-        clearUser,
-        clearRepos,
-    } = useContext(GithubContext);
+    const { user, repos, loading } = useContext(GithubContext);
 
     const params = useParams();
 
-    useEffect(() => {
-        getUser(params.login);
-        getUserRepos(params.login);
-        return () => {
-            clearUser();
-            clearRepos();
-        };
-    }, []);
+    const { getUserAndRepos, clearUserAndRepos } = useGithubActions();
+
+    useLayoutEffect(() => {
+        getUserAndRepos(params.login);
+
+        return () => clearUserAndRepos();
+    }, [getUserAndRepos, clearUserAndRepos, params.login]);
 
     if (loading) {
         return <Spinner />;
@@ -52,7 +43,7 @@ function User() {
     return (
         <>
             <div className="w-full mx-auto lg:w-10/12">
-                <div className="mb-4">
+                <div className="mb-4 text-right">
                     <Link to="/" className="btn btn-ghost">
                         Back to search
                     </Link>
